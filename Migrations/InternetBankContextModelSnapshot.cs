@@ -38,17 +38,17 @@ namespace Internet_Bank.Migrations
                     b.Property<int?>("ApplicationUserId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("Block")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("CVV2")
                         .HasColumnType("text");
 
                     b.Property<string>("CardNumber")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("ExpireDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<string>("ExpireDate")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("StaticPassword")
                         .HasColumnType("text");
@@ -183,17 +183,11 @@ namespace Internet_Bank.Migrations
                     b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Cvv2")
-                        .HasColumnType("text");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<string>("DestinationCardNumber")
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("ExpireDate")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("SorceCardNumber")
                         .HasColumnType("text");
@@ -356,7 +350,7 @@ namespace Internet_Bank.Migrations
             modelBuilder.Entity("Internet_Bank.Data.Transaction", b =>
                 {
                     b.HasOne("Internet_Bank.Data.Account", "Account")
-                        .WithMany()
+                        .WithMany("Transactions")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

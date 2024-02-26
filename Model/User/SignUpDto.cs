@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DNTPersianUtils.Core;
+using Internet_Bank.Validations;
 
 namespace Internet_Bank.Model.User
 {
@@ -22,6 +23,7 @@ namespace Internet_Bank.Model.User
         public string NationalCode { get; set; }
 
         [Required(ErrorMessage = "لطفا تاريخ تولد خود را وارد کنيد")]
+        [IsValidUserAge(18)]
         public DateTime Birthdate { get; set; }
 
         [Required(ErrorMessage = "لطفا شماره موبايل خود را وارد کنيد")]

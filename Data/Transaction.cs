@@ -9,8 +9,6 @@ namespace Internet_Bank.Data
     {
         public int TransactionId { get; set; }
         public string SorceCardNumber { get; set; }
-        public string Cvv2 { get; set; }
-        public DateTime ExpireDate { get; set; }
         public int Amount { get; set; }
         public string DestinationCardNumber { get; set; }
         public bool TransactionStatus { get; set; }

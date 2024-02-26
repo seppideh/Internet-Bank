@@ -44,7 +44,7 @@ namespace Internet_Bank.Repository
                 FirstName = signUpDto.FirstName,
                 LastName = signUpDto.LastName,
                 NationalCode = signUpDto.NationalCode,
-                Birthdate = signUpDto.Birthdate,
+                Birthdate = signUpDto.Birthdate.Date,
                 PhoneNumber = signUpDto.PhoneNumber,
                 Email = signUpDto.Email,
                 UserName = signUpDto.UserName

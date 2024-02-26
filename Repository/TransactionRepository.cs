@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DNTPersianUtils.Core;
 using Internet_Bank.Data;
-using Internet_Bank.Migrations;
+// using Internet_Bank.Migrations;
 using Internet_Bank.Model.Transaction;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,70 +23,57 @@ namespace Internet_Bank.Repository
         {
 
             var account = await _context.Accounts.Where(x => x.UserId == userId &&
-                                                         x.CardNumber == model.SorceCardNumber &&
+                                                         x.CardNumber == model.SourceCardNumber &&
                                                          x.CVV2 == model.Cvv2 &&
-                                                         x.ExpireDate == model.ExpireDate
-                                                     ).FirstOrDefaultAsync();
-            if (account != null)
+                                                         x.ExpireDate == model.ExpireDate &&
+                                                         x.IsBlocked == false
+                                                       ).FirstOrDefaultAsync();
+
+            if (account is null) return new DynamicCode(); ;
+
+            var transaction = new Transaction()
             {
-                var transaction = new Transaction()
-                {
-                    SorceCardNumber = model.SorceCardNumber,
-                    Cvv2 = model.Cvv2,
-                    ExpireDate = model.ExpireDate,
-                    Amount = model.Amount,
-                    DestinationCardNumber = model.DestinationCardNumber,
-                    CreatedDateTime = DateTime.Now,
-                    AccountId = account.AccountId,
-                    TransactionStatus = false
-                };
+                SorceCardNumber = model.SourceCardNumber,
+                Amount = model.Amount,
+                DestinationCardNumber = model.DestinationCardNumber,
+                CreatedDateTime = DateTime.Now,
+                AccountId = account.AccountId,
+                TransactionStatus = false
+            };
 
-                _context.Add(transaction);
-                await _context.SaveChangesAsync();
-
-                int generatedId = transaction.TransactionId;
-                // transaction.AccountId = account.AccountId;
-                var nowTime = DateTime.Now;
-                if (nowTime.Year < model.ExpireDate.Year || (nowTime.Year == model.ExpireDate.Year && nowTime.Month <= model.ExpireDate.Month))
-                {
-                    var random = new Random();
-                    var randNumb = random.Next(10000, 100000);
-                    Console.WriteLine(randNumb);
-
-
-                    var dynamicCode = new DynamicCode()
-                    {
-                        Password = randNumb.ToString(),
-                        CreatedAt = DateTime.Now,
-                        ExpireAt = DateTime.Now.AddMinutes(1),
-                        TransactionId = transaction.TransactionId
-                    };
-                    _context.Add(dynamicCode);
-                    await _context.SaveChangesAsync();
-
-                    // Sentd SMS
-                    // var sender = "1000689696";
-                    // var receptor = "09114458939";
-                    // var message = $"{model.Amount} : مبلغ  {DateTime.Now.ToShortPersianDateString()} : تاریخ  {randNumb} : رمز یکبار مصرف  ";
-                    // string ApiKey = Environment.GetEnvironmentVariable("Kavenegar_APIKey");
-                    // var api = new Kavenegar.KavenegarApi(ApiKey);
-                    // api.Send(sender, receptor, message);
-
-                    return dynamicCode;
-                }
-                else
-                {
-                    transaction.Description = "کارت وارد شده منقضی شده است";
-                }
-            }
-            // else
-            // {
-            //     transaction.Description = "اطلاعات کارت اشتباه است";
-            // }
-
-            // _context.Add(transaction);
+            _context.Add(transaction);
             await _context.SaveChangesAsync();
-            return new DynamicCode();
+
+            var dynamicPass = new Random().Next(10000, 100000);
+            Console.WriteLine(dynamicPass);
+
+            var dynamicCode = new DynamicCode()
+            {
+                Password = dynamicPass.ToString(),
+                CreatedAt = DateTime.Now,
+                ExpireAt = DateTime.Now.AddMinutes(1),
+                TransactionId = transaction.TransactionId
+            };
+            _context.Add(dynamicCode);
+            await _context.SaveChangesAsync();
+
+
+            var user = await _context.Users.Where(x => x.Id == account.UserId).FirstOrDefaultAsync();
+            var SorceCardNumber = model.SourceCardNumber.Replace(" ", "");
+            var displayCardNumber = SorceCardNumber.Substring(0, 5) + "*******" + SorceCardNumber.Substring(11, 4);
+
+
+            // Sentd SMS
+            var sender = "1000689696";
+            var receptor = user.PhoneNumber;
+            var message = $"مبلغ : {model.Amount} \nتاریخ : {DateTime.Now.ToShortPersianDateString()}\nساعت :{DateTime.Now.TimeOfDay}\nشماره کارت : {displayCardNumber}\nرمز پویا : {dynamicPass}";
+            string ApiKey = Environment.GetEnvironmentVariable("Kavenegar_APIKey");
+            var api = new Kavenegar.KavenegarApi(ApiKey);
+            // api.Send(sender, receptor, message);
+
+            return dynamicCode;
         }
+
+        
     }
 }

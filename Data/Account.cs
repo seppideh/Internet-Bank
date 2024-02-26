@@ -13,10 +13,12 @@ namespace Internet_Bank.Data
         public string AccountNumber { get; set; }
         public string CardNumber { get; set; }
         public string CVV2 { get; set; }
-        public DateTime ExpireDate { get; set; }
+        public string ExpireDate { get; set; }
         public string StaticPassword { get; set; }
-        public bool Block { get; set; }
+        public bool IsBlocked { get; set; }
         public int UserId { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
+
     }
 }

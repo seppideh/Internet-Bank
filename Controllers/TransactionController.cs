@@ -41,9 +41,11 @@ namespace Internet_Bank.Controllers
                 return Ok("رمز پویا ارسال شد");
             }
 
-            return BadRequest();
-
+            return BadRequest("کارت مورد نظر یافت نشد");
         }
+
+
+
 
     }
 }

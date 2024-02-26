@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DNTPersianUtils.Core;
 using Internet_Bank.Data;
 using Internet_Bank.Model.Account;
+using Internet_Bank.Service;
 using Microsoft.EntityFrameworkCore;
 
 namespace Internet_Bank.Repository
@@ -13,60 +14,30 @@ namespace Internet_Bank.Repository
     public class AccountRepository : IAccountRepository
     {
         private readonly InternetBankContext _context;
+        private readonly IRandomService _randomService;
 
-        public AccountRepository(InternetBankContext context)
+
+        public AccountRepository(
+            InternetBankContext context,
+            IRandomService randomService)
         {
             _context = context;
+            _randomService = randomService;
+
         }
 
         public async Task<Account> OpenAccount(int userId, OpenAccountDto model)
         {
-            // Account Number
-            Random random = new Random();
-            int randomNumber1 = random.Next(10, 100);
-            int randomNumber2 = random.Next(1000, 10000);
-
-            var newuserId = "";
-            if (userId < 10)
-            {
-                newuserId = "00" + userId.ToString();
-            }
-            else if (userId < 100)
-            {
-                newuserId = "0" + userId.ToString();
-            }
-            else
-            {
-                newuserId = userId.ToString();
-            }
-
-            var endDigit = (int)model.AccountType;
-
-            int randomNumber3 = random.Next(1000, 10000);
-            int randomNumber4 = random.Next(1000, 10000);
-            int randomNumber5 = random.Next(1000, 10000);
-            int randomNumber6 = random.Next(1000, 10000);
-
-            // cvv2
-            int randomNumber7 = random.Next(1000, 10000);
-
-            // static password
-            int randomNumber8 = random.Next(100000, 1000000);
-
-            // var expire = DateTime.Now.AddYears(5).ToShortPersianDateString();
-            // var expireYear = DateTime.Now.AddYears(5).Year;
-            // var expireMonth = DateTime.Now.AddYears(5).Month;
-
             var account = new Account()
             {
                 AccountType = model.AccountType,
                 Amount = model.Amount,
-                AccountNumber = randomNumber1.ToString() + "." + newuserId + randomNumber2.ToString() + "." + endDigit.ToString(),
-                CardNumber = randomNumber3.ToString() + " " + randomNumber4.ToString() + " " + randomNumber5.ToString() + " " + randomNumber6.ToString() + " ",
-                CVV2 = randomNumber7.ToString(),
-                ExpireDate = DateTime.Now.AddYears(5),
-                StaticPassword = randomNumber8.ToString(),
-                Block = false,
+                AccountNumber = _randomService.AccountNumberGenerator(userId,model),
+                CardNumber = _randomService.CardNumberGenerator(),
+                CVV2 = _randomService.Cvv2Generator(),
+                ExpireDate = DateTime.Now.AddYears(5).ToString("yy/MM"),
+                StaticPassword = _randomService.PasswordGenerator(),
+                IsBlocked = false,
                 UserId = userId
             };
             _context.Add(account);
@@ -148,7 +119,7 @@ namespace Internet_Bank.Repository
 
             if (account != null)
             {
-                account.Block = true;
+                account.IsBlocked = true;
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -161,7 +132,7 @@ namespace Internet_Bank.Repository
 
             if (account != null)
             {
-                account.Block = false;
+                account.IsBlocked = false;
                 await _context.SaveChangesAsync();
                 return true;
             }

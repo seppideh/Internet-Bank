@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Internet_Bank.Migrations
 {
     [DbContext(typeof(InternetBankContext))]
-    [Migration("20240220074655_init")]
+    [Migration("20240226131136_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,17 +40,17 @@ namespace Internet_Bank.Migrations
                     b.Property<int?>("ApplicationUserId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("Block")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("CVV2")
                         .HasColumnType("text");
 
                     b.Property<string>("CardNumber")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("ExpireDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<string>("ExpireDate")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("StaticPassword")
                         .HasColumnType("text");
@@ -141,6 +141,67 @@ namespace Internet_Bank.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("Internet_Bank.Data.DynamicCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("ExpireAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("DynamicCodes");
+                });
+
+            modelBuilder.Entity("Internet_Bank.Data.Transaction", b =>
+                {
+                    b.Property<int>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DestinationCardNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SorceCardNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TransactionStatus")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("TransactionId");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -277,6 +338,24 @@ namespace Internet_Bank.Migrations
                     b.HasOne("Internet_Bank.Data.ApplicationUser", "ApplicationUser")
                         .WithMany("Accounts")
                         .HasForeignKey("ApplicationUserId");
+                });
+
+            modelBuilder.Entity("Internet_Bank.Data.DynamicCode", b =>
+                {
+                    b.HasOne("Internet_Bank.Data.Transaction", "Transaction")
+                        .WithMany()
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Internet_Bank.Data.Transaction", b =>
+                {
+                    b.HasOne("Internet_Bank.Data.Account", "Account")
+                        .WithMany("Transactions")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

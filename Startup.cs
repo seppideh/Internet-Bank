@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Internet_Bank.Data;
 using Internet_Bank.Repository;
+using Internet_Bank.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,6 +65,8 @@ namespace Internet_Bank
             services.AddTransient<IAccountRepository, AccountRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IRandomService, RandomService>();
+
 
 
             services.AddSwaggerGen(conf =>
