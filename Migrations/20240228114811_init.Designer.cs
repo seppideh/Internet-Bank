@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Internet_Bank.Migrations
 {
     [DbContext(typeof(InternetBankContext))]
-    [Migration("20240226131136_init")]
+    [Migration("20240228114811_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,7 +23,7 @@ namespace Internet_Bank.Migrations
 
             modelBuilder.Entity("Internet_Bank.Data.Account", b =>
                 {
-                    b.Property<int>("AccountId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -58,7 +58,7 @@ namespace Internet_Bank.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("AccountId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
@@ -150,6 +150,9 @@ namespace Internet_Bank.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<int?>("ApplicationUserId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
@@ -162,7 +165,12 @@ namespace Internet_Bank.Migrations
                     b.Property<int>("TransactionId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("TransactionId");
 
@@ -171,7 +179,7 @@ namespace Internet_Bank.Migrations
 
             modelBuilder.Entity("Internet_Bank.Data.Transaction", b =>
                 {
-                    b.Property<int>("TransactionId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
@@ -180,6 +188,9 @@ namespace Internet_Bank.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ApplicationUserId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedDateTime")
@@ -194,12 +205,17 @@ namespace Internet_Bank.Migrations
                     b.Property<string>("SorceCardNumber")
                         .HasColumnType("text");
 
-                    b.Property<bool>("TransactionStatus")
+                    b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
-                    b.HasKey("TransactionId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Transactions");
                 });
@@ -342,6 +358,10 @@ namespace Internet_Bank.Migrations
 
             modelBuilder.Entity("Internet_Bank.Data.DynamicCode", b =>
                 {
+                    b.HasOne("Internet_Bank.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
+
                     b.HasOne("Internet_Bank.Data.Transaction", "Transaction")
                         .WithMany()
                         .HasForeignKey("TransactionId")
@@ -356,6 +376,10 @@ namespace Internet_Bank.Migrations
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Internet_Bank.Data.ApplicationUser", "ApplicationUser")
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

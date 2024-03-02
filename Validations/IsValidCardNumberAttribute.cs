@@ -15,6 +15,7 @@ namespace Internet_Bank.Validations
             string[] parts = cardNumber.Split(' ');
             string cardNumberWithoutSpace = string.Join("", parts);
 
+
             if (cardNumberWithoutSpace.Length != 16)
             {
                 return false;

@@ -47,7 +47,7 @@ namespace Internet_Bank.Repository
 
         public async Task<bool> ChangePassword(ChangePasswordDto model)
         {
-            var account = await _context.Accounts.Where(x => x.AccountId == model.AccountId).FirstOrDefaultAsync();
+            var account = await _context.Accounts.Where(x => x.Id == model.AccountId).FirstOrDefaultAsync();
             if (account != null)
             {
                 if (account.StaticPassword == model.OldPassword)
@@ -74,7 +74,7 @@ namespace Internet_Bank.Repository
                     var account = new GetAccountsListsDto()
                     {
                         AccountNumber = item.AccountNumber,
-                        AccountId = item.AccountId,
+                        AccountId = item.Id,
                         CardNumber = item.CardNumber
                     };
                     accountsList.Add(account);
@@ -86,7 +86,7 @@ namespace Internet_Bank.Repository
 
         public async Task<GetDetailsOfAccount> GetDetailsById(int account_id)
         {
-            var account = await _context.Accounts.Where(x => x.AccountId == account_id)
+            var account = await _context.Accounts.Where(x => x.Id == account_id)
                                             .Select(x => new GetDetailsOfAccount()
                                             {
                                                 AccountNumber = x.AccountNumber,
@@ -94,7 +94,7 @@ namespace Internet_Bank.Repository
                                                 CVV2 = x.CVV2,
                                                 ExpireDate = x.ExpireDate,
                                                 StaticPassword = x.StaticPassword,
-                                                AccountId = x.AccountId,
+                                                AccountId = x.Id,
                                                 AccountType = x.AccountType
                                             }).FirstOrDefaultAsync();
             return account;
@@ -102,10 +102,10 @@ namespace Internet_Bank.Repository
 
         public async Task<GetBalanceDto> GetBalanceById(int account_id)
         {
-            var account = await _context.Accounts.Where(x => x.AccountId == account_id)
+            var account = await _context.Accounts.Where(x => x.Id == account_id)
                                                 .Select(x => new GetBalanceDto()
                                                 {
-                                                    AccountId = x.AccountId,
+                                                    AccountId = x.Id,
                                                     Amount = x.Amount,
                                                     AccountNumber = x.AccountNumber
                                                 }).FirstOrDefaultAsync();
@@ -115,7 +115,7 @@ namespace Internet_Bank.Repository
 
         public async Task<bool> BlockAccount(int account_id)
         {
-            var account = await _context.Accounts.Where(x => x.AccountId == account_id).FirstOrDefaultAsync();
+            var account = await _context.Accounts.Where(x => x.Id == account_id).FirstOrDefaultAsync();
 
             if (account != null)
             {
@@ -128,7 +128,7 @@ namespace Internet_Bank.Repository
 
         public async Task<bool> UnBlockAccount(int account_id)
         {
-            var account = await _context.Accounts.Where(x => x.AccountId == account_id).FirstOrDefaultAsync();
+            var account = await _context.Accounts.Where(x => x.Id == account_id).FirstOrDefaultAsync();
 
             if (account != null)
             {

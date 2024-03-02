@@ -10,5 +10,7 @@ namespace Internet_Bank.Repository
     public interface ITransactionRepository
     {
         Task<DynamicCode> SendSMS(int userId, SendOtpDto model);
+        Task<bool> TransferMoney(int userId, TransferMoneyDto model);
+        Task<List<TransactionReportDto>> GetTransactionsReport(String from, string to, bool isSuccess, int userId);
     }
 }

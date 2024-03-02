@@ -7,7 +7,7 @@ namespace Internet_Bank.Data
 {
     public class Account
     {
-        public int AccountId { get; set; }
+        public int Id { get; set; }
         public AccountType AccountType { get; set; }
         public int Amount { get; set; }
         public string AccountNumber { get; set; }

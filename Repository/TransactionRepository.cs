@@ -37,8 +37,8 @@ namespace Internet_Bank.Repository
                 Amount = model.Amount,
                 DestinationCardNumber = model.DestinationCardNumber,
                 CreatedDateTime = DateTime.Now,
-                AccountId = account.AccountId,
-                TransactionStatus = false
+                AccountId = account.Id,
+                Status = false
             };
 
             _context.Add(transaction);
@@ -51,8 +51,9 @@ namespace Internet_Bank.Repository
             {
                 Password = dynamicPass.ToString(),
                 CreatedAt = DateTime.Now,
-                ExpireAt = DateTime.Now.AddMinutes(1),
-                TransactionId = transaction.TransactionId
+                ExpireAt = DateTime.Now.AddMinutes(3),
+                TransactionId = transaction.Id,
+                UserId = userId
             };
             _context.Add(dynamicCode);
             await _context.SaveChangesAsync();
@@ -74,6 +75,73 @@ namespace Internet_Bank.Repository
             return dynamicCode;
         }
 
-        
+        public async Task<bool> TransferMoney(int userId, TransferMoneyDto model)
+        {
+            var dynamicCode = await _context.DynamicCodes.Where(x => x.Password == model.Password
+                                                                && x.UserId == userId
+                                                                ).FirstOrDefaultAsync();
+
+            var transaction = await _context.Transactions.Where(x => x.Id == dynamicCode.TransactionId).FirstOrDefaultAsync();
+            var account = await _context.Accounts.Where(x => x.Id == transaction.AccountId).FirstOrDefaultAsync();
+
+            if (dynamicCode.Password != model.Password || dynamicCode.ExpireAt < DateTime.Now)
+            {
+                transaction.Description = "رمز وارد شده اشتباه است";
+                transaction.Status = false;
+
+                return false;
+            }
+            else if (account.Amount < transaction.Amount)
+            {
+                transaction.Description = "موجودی کافی نیست";
+                transaction.Status = false;
+
+                return false;
+            }
+
+            transaction.Description = "انتقال پول با موفقیت انجام شد";
+            transaction.Status = true;
+            account.Amount -= transaction.Amount;
+
+            var destinationAccount = await _context.Accounts.Where(x => x.CardNumber == transaction.DestinationCardNumber)
+                                                     .FirstOrDefaultAsync();
+
+            if (!(destinationAccount is null))
+            {
+                destinationAccount.Amount += transaction.Amount;
+            }
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<List<TransactionReportDto>> GetTransactionsReport(String from, string to, bool isSuccess, int userId)
+        {
+            if (string.IsNullOrEmpty(from))
+            {
+                return await _context.Transactions.OrderByDescending(x => x.Id).Take(5)
+                                                       .Select(x => new TransactionReportDto()
+                                                       {
+                                                           Amount = x.Amount,
+                                                           Status = x.Status,
+                                                           CreatedDateTime = x.CreatedDateTime,
+                                                           AccountId = x.AccountId,
+                                                           Description = x.Description,
+                                                           DestinationCardNumber = x.DestinationCardNumber
+                                                       }).ToListAsync();
+            }
+            return await _context.Transactions.Where(x => x.UserId == userId
+                                                                && x.CreatedDateTime >= DateTime.Parse(from)
+                                                                && x.CreatedDateTime <= DateTime.Parse(to)
+                                                                && x.Status == isSuccess).Select(x => new TransactionReportDto()
+                                                                {
+                                                                    Amount = x.Amount,
+                                                                    Status = x.Status,
+                                                                    CreatedDateTime = x.CreatedDateTime,
+                                                                    AccountId = x.AccountId,
+                                                                    Description = x.Description,
+                                                                    DestinationCardNumber = x.DestinationCardNumber
+                                                                }).ToListAsync();
+        }
     }
 }

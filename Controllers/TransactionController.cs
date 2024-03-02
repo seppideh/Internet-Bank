@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Castle.DynamicProxy.Generators.Emitters;
 using Internet_Bank.Model.Transaction;
 using Internet_Bank.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -31,8 +32,7 @@ namespace Internet_Bank.Controllers
         [HttpPost("send-otp")]
         public async Task<IActionResult> SendSMS([FromBody] SendOtpDto model)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userId = int.Parse(userIdString);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var result = await _transactionRepository.SendSMS(userId, model);
 
@@ -44,8 +44,33 @@ namespace Internet_Bank.Controllers
             return BadRequest("کارت مورد نظر یافت نشد");
         }
 
+        [HttpPatch("transfer-money")]
+        public async Task<IActionResult> TransferMoney([FromBody] TransferMoneyDto model)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
+            var result = await _transactionRepository.TransferMoney(userId, model);
 
+            if (!result)
+            {
+                return BadRequest("انتقال پول ناموفق");
+            }
+            return Ok("انتقال پول با موفقیت انجام شد");
+        }
+
+        [HttpGet("report")]
+        public async Task<IActionResult> GetTransactionsReport(String from, string to, bool isSuccess)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var result = await _transactionRepository.GetTransactionsReport(from, to, isSuccess, userId);
+
+            if (result.Count!=0)
+            {
+                return Ok(result);
+            }
+            return Ok("در بازه ی زمانی انتخاب شده تراکنشی وجود ندارد");
+        }
 
     }
 }

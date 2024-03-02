@@ -11,8 +11,9 @@ namespace Internet_Bank.Data
         public string Password { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ExpireAt { get; set; }
+        public int UserId { get; set; }
         public int TransactionId { get; set; }
         public Transaction Transaction { get; set; }
-
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

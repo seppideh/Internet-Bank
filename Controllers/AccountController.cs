@@ -56,7 +56,7 @@ namespace Internet_Bank.Controllers
             var result = await _accountsRepository.ChangePassword(model);
             if (!result)
             {
-                return BadRequest("This account is not exist");
+                return BadRequest("This account does not exist");
             }
             return Ok(result);
         }
