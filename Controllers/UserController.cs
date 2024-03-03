@@ -27,7 +27,7 @@ namespace Internet_Bank.Controllers
             var result = await _userRepository.SignUp(signUpDTO);
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok("ثبت نام شما با موفقیت انجام شد!");
             }
             return BadRequest(result.Errors.Select(x => x.Description));
         }
@@ -38,7 +38,7 @@ namespace Internet_Bank.Controllers
             var result = await _userRepository.Login(loginDto);
             if (string.IsNullOrEmpty(result))
             {
-                return Unauthorized();
+                return Unauthorized("ورود ناموفق!");
             }
             return Ok(result);
         }

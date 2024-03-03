@@ -20,6 +20,13 @@ namespace Internet_Bank.Controllers
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly ILogger<TransactionController> _logger;
+        public int UserId
+        {
+            get
+            {
+                return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            }
+        }
 
         public TransactionController(
             ITransactionRepository transactionRepository,
@@ -32,9 +39,9 @@ namespace Internet_Bank.Controllers
         [HttpPost("send-otp")]
         public async Task<IActionResult> SendSMS([FromBody] SendOtpDto model)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            // var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var result = await _transactionRepository.SendSMS(userId, model);
+            var result = await _transactionRepository.SendSMS(UserId, model);
 
             if (result.Password != null)
             {
@@ -47,9 +54,9 @@ namespace Internet_Bank.Controllers
         [HttpPatch("transfer-money")]
         public async Task<IActionResult> TransferMoney([FromBody] TransferMoneyDto model)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            // var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var result = await _transactionRepository.TransferMoney(userId, model);
+            var result = await _transactionRepository.TransferMoney(UserId, model);
 
             if (!result)
             {
@@ -61,9 +68,9 @@ namespace Internet_Bank.Controllers
         [HttpGet("report")]
         public async Task<IActionResult> GetTransactionsReport(String from, string to, bool isSuccess)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            // var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var result = await _transactionRepository.GetTransactionsReport(from, to, isSuccess, userId);
+            var result = await _transactionRepository.GetTransactionsReport(from, to, isSuccess, UserId);
 
             if (result.Count!=0)
             {

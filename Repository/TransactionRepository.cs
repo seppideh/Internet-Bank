@@ -45,7 +45,7 @@ namespace Internet_Bank.Repository
             await _context.SaveChangesAsync();
 
             var dynamicPass = new Random().Next(10000, 100000);
-            Console.WriteLine(dynamicPass);
+            // Console.WriteLine(dynamicPass);
 
             var dynamicCode = new DynamicCode()
             {

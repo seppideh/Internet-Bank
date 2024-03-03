@@ -22,8 +22,13 @@ namespace Internet_Bank.Controllers
     {
         private readonly IAccountRepository _accountsRepository;
         private readonly ILogger<AccountController> _logger;
-
-
+        public int UserId
+        {
+            get
+            {
+                return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            }
+        }
         public AccountController(
             IAccountRepository accountsRepository,
             ILogger<AccountController> logger)
@@ -35,12 +40,11 @@ namespace Internet_Bank.Controllers
         [HttpPost]
         public async Task<IActionResult> OpenAccount([FromBody] OpenAccountDto model)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userIdString != null)
+            if (UserId != 0)
             {
-                var userId = int.Parse(userIdString);
-                var account = await _accountsRepository.OpenAccount(userId, model);
+                var account = await _accountsRepository.OpenAccount(UserId, model);
                 return Ok(account);
             }
             else
@@ -65,10 +69,7 @@ namespace Internet_Bank.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAccountsOfUser()
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userId = int.Parse(userIdString);
-
-            var accounts = await _accountsRepository.GetAccountsOfUser(userId);
+            var accounts = await _accountsRepository.GetAccountsOfUser(UserId);
             if (accounts == null)
             {
                 return NotFound();
